@@ -1,7 +1,6 @@
 #include "WPILib.h"
 #include <moduleLib.h>
 #include <time.h>
-#include <Victor.h>
 
 class RobotDemo : public SimpleRobot
 {	
@@ -15,7 +14,6 @@ private:
 		PWM_TALON_DRIVE5,
 		PWM_TALON_DRIVE6,
 		PWM_VICTOR_ROLLER,
-		
 		PWM_EMPTY_8,
 		PWM_EMPTY_9,
 		PWM_EMPTY_10
@@ -24,8 +22,7 @@ private:
 	{
 		RELAY_EMTPY_1 = 1,
 		RELAY_WINCH_CLUTCH,
-		
-		RELAY_EMPTY_3,
+		RELAY_COMPRESSOR,
 		RELAY_EMPTY_4,
 		RELAY_EMPTY_5,
 		RELAY_EMPTY_6,
@@ -36,8 +33,7 @@ private:
 	{
 		DIO_COMP_ONBOARD = 1,
 		DIO_COMP_OFFBOARD,
-		
-		DIO_EMPTY_3,
+		DIO_PRESSURE_SWITCH,
 		DIO_EMPTY_4,
 		DIO_EMPTY_5,
 		DIO_EMPTY_6,
@@ -57,24 +53,23 @@ private:
 		SOLENOID_CLAW2,
 		SOLENOID_CHOMP3,
 		SOLENOID_CHOMP4,
-		
-		SOLENOID_EMPTY_5,
-		SOLENOID_EMPTY_6,
-		SOLENOID_EMPTY_7,  
-		SOLENOID_EMPTY_8
+		SOLENOID_PORT_A_RIGHT,
+		SOLENOID_PORT_B_RIGHT,
+		SOLENOID_PORT_A_LEFT,  
+		SOLENOID_PORT_B_LEFT
 	};
 
 	enum JOYSTICK_ID
 	{
 		CONTROLLER_MAIN = 1,
+		CONTROLLER_SECONDARY,
 	};
 	
 	RobotDrive driveSystem;
 	Joystick leftStick;
 	Joystick rightStick;
-
 	
-		struct JoyStickState
+	struct JoyStickState
 	{
 		bool Button1Pressed;
 		bool Button2Pressed;
@@ -85,19 +80,30 @@ private:
 		bool Button7Pressed;
 		bool Button8Pressed;
 		bool Button9Pressed;
-		bool Button10Presssed;
+		bool Button10Pressed;
+		bool Button11Pressed;
+		bool Button12Pressed;
 	};
 	
 	JoyStickState leftState;
 	JoyStickState rightState;
 	
+	DoubleSolenoid solenoidsRight;
+	DoubleSolenoid solenoidsLeft;
+	
+	Compressor compressor;
+	bool CompressorIsRunning;
+	
 	bool netConsoleEnabled;
 	
 public:
 	RobotDemo(void):
-		//driveSystem(PWM_JAG_FRONT_LEFT, PWM_JAG_FRONT_RIGHT, PWM_JAG_BACK_LEFT, PWM_JAG_BACK_RIGHT),
+		driveSystem(PWM_TALON_DRIVE1, PWM_TALON_DRIVE2, PWM_TALON_DRIVE3, PWM_TALON_DRIVE4, PWM_TALON_DRIVE5, PWM_TALON_DRIVE6),
 		leftStick(CONTROLLER_MAIN),
-		rightStick(CONTROLLER_MAIN)
+		rightStick(CONTROLLER_MAIN),
+		solenoidsRight(SOLENOID_PORT_A_RIGHT, SOLENOID_PORT_B_RIGHT),
+		solenoidsLeft(SOLENOID_PORT_A_LEFT, SOLENOID_PORT_B_LEFT),
+		compressor(DIO_PRESSURE_SWITCH, RELAY_COMPRESSOR)
 	{
 			netConsoleEnabled = (moduleFindByName("NetConsole.out") != NULL);
 			if (netConsoleEnabled) cerr << "Robot -- started cerr\n";
@@ -106,11 +112,34 @@ public:
 			
 	}
 	/**
-	 * Runs the motors with Mecanum steering. 
+	 * Runs the motors with tankdrive steering. 
 	 */
 	void OperatorControl()
 	{
+		driveSystem.TankDrive(leftStick, rightStick);	
+		
+		if(rightStick.GetTrigger()) //If trigger is pressed
+		{
+			//Compresser code
 		}
+		else if(rightStick.GetRawButton(3))
+		{
+			//Arm UP CODE
+		}
+		//If button number 2 is pressed
+		else if(rightStick.GetRawButton(2))
+		{
+			//Arm Down Code
+		}
+		else if(rightStick.GetRawbutton(4))
+		{
+			//CHOMP
+		}
+		else if(rightStick.GetRawButton(5))
+		{
+			//CHOMP
+		}
+	}
 	
 };
 
